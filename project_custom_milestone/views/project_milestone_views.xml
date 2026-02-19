@@ -26,7 +26,7 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="pms_id"/>
+                            <field name="pms_id" invisible="1"/>
                             <field name="milestone_id"/>
                             <field name="name"/>
                             <field name="project_id"/>
