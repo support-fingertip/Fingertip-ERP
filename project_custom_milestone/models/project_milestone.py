@@ -57,8 +57,5 @@ class ProjectCustomMilestone(models.Model):
         string='Paid Amount'
     )
 
-    _unique_milestone_id = models.Constraint(
-        'UNIQUE(milestone_id)',
-        'This Milestone ID is already exists!'
-    )
+    pms_id = fields.Integer()
 
