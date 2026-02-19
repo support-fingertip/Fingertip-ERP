@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import models, fields,api
 
 class ProjectCustomMilestone(models.Model):
     _name = 'project.custom.milestone'
@@ -56,3 +56,9 @@ class ProjectCustomMilestone(models.Model):
     paid_amount = fields.Float(
         string='Paid Amount'
     )
+
+    _unique_milestone_id = models.Constraint(
+        'UNIQUE(milestone_id)',
+        'This Milestone ID is already exists!'
+    )
+
