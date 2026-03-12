@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Remove inline HSN/SAC Code display from l10n_in_sale
+         Commented out: l10n_in_sale.gst_report_saleorder_document_inherit does not exist in Odoo 19
+    <template id="hide_inline_hsn_sale"
+              inherit_id="l10n_in_sale.gst_report_saleorder_document_inherit">
+        <xpath expr="//h6/strong[hasclass('ml16')]/.." position="replace"/>
+    </template>
+    -->
+
+    <!-- Add HSN/SAC as a separate column in sale order report -->
+    <template id="sale_hsn_column"
+              inherit_id="sale.report_saleorder_document">
+
+        <!-- Add HSN/SAC column header after Description -->
+        <xpath expr="//th[@name='th_description']" position="after">
+            <th name="th_hsn_sac" class="text-start">HSN/SAC</th>
+        </xpath>
+
+        <!-- Add HSN/SAC data cell after Description cell -->
+        <xpath expr="//td[@name='td_product_name']" position="after">
+            <td name="td_hsn_sac">
+                <span t-if="line.product_id.l10n_in_hsn_code"
+                      t-field="line.product_id.l10n_in_hsn_code"/>
+            </td>
+        </xpath>
+
+    </template>
+
+    <!-- Add Declaration and Authorised Signatory to sale order PDF -->
+    <template id="sale_declaration_signatory"
+              inherit_id="sale.report_saleorder_document">
+        <!-- Keep note in its original position, add declaration+signatory after -->
+        <xpath expr="//span[@name='order_note']/.." position="after">
+            <table style="width:100%; margin-top:10px; border-collapse:collapse;">
+                <tr>
+                    <td style="width:55%; vertical-align:top; padding-right:20px;">
+                        <strong>Declaration</strong><br/>
+                        We declare that this invoice shows the actual price of the goods/<br/>
+                        Services described and that all particulars are true and correct
+                    </td>
+                    <td style="width:45%; vertical-align:top; text-align:center;">
+                        <div>for <strong t-field="doc.company_id.name"/></div>
+                        <div style="height:40px;"></div>
+                        <div><strong>Authorised Signatory</strong></div>
+                    </td>
+                </tr>
+            </table>
+        </xpath>
+    </template>
+
+</odoo>

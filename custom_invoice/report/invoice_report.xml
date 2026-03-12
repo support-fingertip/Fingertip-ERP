@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Report Action -->
+
+     <record id="paperformat_tax" model="report.paperformat">
+        <field name="name">Tax Invoice</field>
+        <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">12</field>
+        <field name="margin_bottom">12</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">5</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+    
+    <record id="custom_invoice_report" model="ir.actions.report">
+        <field name="name">Custom Invoice</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_invoice_report.invoice_template</field>
+        <field name="report_file">custom_invoice_report.invoice_template</field>
+        <field name="print_report_name">'Invoice - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="custom_invoice_report.paperformat_tax"/>
+    </record>
+
+   
+
+    <!-- QWeb Template -->
+    <template id="invoice_template">
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="o">
+
+                <style>
+                    .page { padding: 10px;  padding-top: 0; font-size: 12px; }
+                    table, th, td { border: 1.5px solid #000; border-collapse: collapse; }
+                    th { font-weight: bold; background: #f2f2f2; }
+                    td { vertical-align: top; padding: 5px; }
+                    .right { text-align: right; }
+                    .center { text-align: center; }
+                    .last-line td {
+                        border-bottom: none !important;
+                    }
+
+                   
+                </style>
+
+                <div class="page" >
+
+                    <!-- TITLE -->
+                    <table style="width:95%; margin:auto; border:none; border-collapse:collapse;">
+                        <tr style="border:none;">
+                            <!-- LOGO -->
+                            <td style="width:30%; border:none; vertical-align:middle;">
+                                <img t-if="o.company_id.logo"
+                                    t-att-src="image_data_uri(o.company_id.logo)"
+                                    style="max-height:100px;"/>
+                            </td>
+
+                            <!-- TITLE -->
+                            <td style="width:70%; border:none; text-align:center; vertical-align:middle;">
+                                <h3 style="margin:0; margin-left:-260px;">
+                                    <t t-if="o.move_type == 'out_invoice' and o.state == 'draft'">PROFORMA INVOICE</t>
+                                    <t t-elif="o.move_type == 'out_invoice'">TAX INVOICE</t>
+                                    <t t-elif="o.move_type == 'in_invoice' and o.state == 'draft'">PROFORMA BILL</t>
+                                    <t t-else="">VENDOR BILL</t>
+                                </h3>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- MASTER TABLE -->
+                    <table style="width:95%; margin:auto;">
+
+                        <!-- ROW 1: Company | Invoice Meta -->
+                        <tr>
+                            <td style="width:50%;">
+                                <strong t-esc="o.company_id.name"/><br/>
+                                <span t-esc="o.company_id.street"/><br/>
+                                <span t-esc="o.company_id.city"/> - <span t-esc="o.company_id.zip"/><br/>
+                                <span t-esc="o.company_id.state_id.name"/>, <span t-esc="o.company_id.country_id.name"/>
+                            </td>
+                            <td style="width:50%; vertical-align:top; padding:0;">
+                                <div style="border-bottom:1px solid #000; padding:6px; text-align:center;">
+                                    <strong>Inv.No:</strong> <span t-esc="o.name"/>
+                                </div>
+                                <div style="border-bottom:1px solid #000; padding:6px; text-align:center;">
+                                    <strong>DATE:</strong> <span t-esc="o.invoice_date"/>
+                                </div>
+                                <div style="border-bottom:1px solid #000; height:40px; padding:6px; position:relative;">
+                                    <div style="position:absolute; bottom:6px; left:6px;">
+                                        <strong>PO Ref No:</strong> <span t-esc="o.ref or 'N/A'"/>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- ROW 2: Client | Payment Terms -->
+                        <tr>
+                            <td>
+                                <strong>Client</strong><br/>
+                                <span t-esc="o.partner_id.name"/><br/>
+                                <t t-if="o.partner_id.vat">
+                                    GSTIN: <span t-esc="o.partner_id.vat"/>
+                                </t>
+                            </td>
+                            <td>
+                                <strong>Payment Terms:</strong> <span t-esc="o.invoice_payment_term_id.name or 'N/A'"/>
+                            </td>
+                        </tr>
+
+                        <!-- ROW 3: Line Items & Totals -->
+                        <tr>
+                            <td colspan="2" style="padding:0;">
+                                <table style="width:100%; border-collapse:collapse;">
+                                    <colgroup>
+                                        <col style="width:5%"/>
+                                        <col style="width:45%"/>
+                                        <col style="width:15%"/>
+                                        <col style="width:15%"/>
+                                        <col style="width:20%"/>
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th class="center">SL.No</th>
+                                            <th>Description</th>
+                                            <th class="center">Quantity / Hours</th>
+                                            <th class="right">Unit price INR</th>
+                                            <th class="right">Total INR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="slno" t-value="1"/>
+                                            <t t-foreach="o.invoice_line_ids" t-as="line">
+                                                <tr t-att-class="slno == len(o.invoice_line_ids) and 'last-line' or ''">
+                                                    <td class="center"><t t-esc="slno"/></td>
+                                                    <td>
+                                                        <strong t-esc="line.name"/><br/>
+                                                        <t t-if="line.sac_code">SAC CODE : <t t-esc="line.sac_code"/></t>
+                                                    </td>
+                                                    <td class="center"><t t-esc="line.quantity"/></td>
+                                                    <td class="right">
+                                                        <span t-field="line.price_unit" t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                                                    </td>
+                                                    <td class="right">
+                                                        <span t-field="line.price_subtotal" t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                                                    </td>
+                                                </tr>
+                                                <t t-set="slno" t-value="slno + 1"/>
+                                            </t>
+
+                                            <!-- Spacer row (optional, keeps white space) -->
+                                            <tr>
+                                                <td style="height:120px; border-top:none; border-bottom:none;"></td>
+                                                <td style="border-top:none; border-bottom:none;"></td>
+                                                <td style="border-top:none; border-bottom:none;"></td>
+                                                <td style="border-top:none; border-bottom:none;"></td>
+                                                <td style="border-top:none; border-bottom:none;"></td>
+                                            </tr>
+                                        <!-- SUB TOTAL -->
+                                        <tr style="border-top:none;">
+                                            <td></td>
+                                            <td class="right"><strong>Sub Total</strong></td>
+                                            <td class="center"><t t-esc="sum(o.invoice_line_ids.mapped('quantity'))"/></td>
+                                            <td></td>
+                                            <td class="right">
+                                                <strong>
+                                                    <span t-field="o.amount_untaxed" t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                                                </strong>
+                                            </td>
+                                        </tr>
+
+                                        <!-- CGST -->
+                                        <tr>
+                                            <td></td>
+                                            <td class="right">Add: CGST @ 9%</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td class="right">
+                                                <span t-field="o.cgst_amount" t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                                            </td>
+                                        </tr>
+
+                                        <!-- SGST -->
+                                        <tr>
+                                            <td></td>
+                                            <td class="right">Add: SGST @ 9%</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td class="right">
+                                                <span t-field="o.sgst_amount" t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                                            </td>
+                                        </tr>
+
+                                        <!-- TOTAL -->
+                                        <tr>
+                                            <td></td>
+                                            <td class="right"><strong>TOTAL INR</strong></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td class="right">
+                                                <strong>
+                                                    <span t-field="o.amount_total" t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                                                </strong>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+
+                     
+                       <!-- ROW 4: Amount in Words -->
+                        <tr>
+                            <td style="width:50%;">
+                                <strong>Amount Chargeable (in words):</strong><br/>
+                                <span t-esc="o.amount_in_words"/>
+                            </td>
+                            <td style="width:50%;"></td>
+                        </tr>
+
+                        <!-- ROW 4: Bank Details -->
+                        <t t-if="o.partner_bank_id">
+                            <tr>
+                                <td style="width:50%;">
+                                    <strong>Bank Details:</strong><br/>
+                                    Bank: <span t-esc="o.partner_bank_id.bank_id.name"/><br/>
+                                    A/C No: <span t-esc="o.partner_bank_id.acc_number"/><br/>
+                                    IFSC: <span t-esc="o.partner_bank_id.bank_id.bic"/>
+                                </td>
+                                <td style="width:50%;"></td>
+                            </tr>
+                        </t>
+
+
+
+                        <!-- ROW 5: Declaration & Signature -->
+                        <tr>
+                            <td>
+                                <strong>Declaration:</strong><br/>
+                                We declare that this invoice shows the actual price of the goods/
+                                Services described and that all particulars are true and correct.
+                            </td>
+                            <td style="text-align:center;">
+                                for <span t-esc="o.company_id.name"/><br/><br/><br/>
+                                <strong>Authorised Signatory</strong>
+                            </td>
+                        </tr>
+
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

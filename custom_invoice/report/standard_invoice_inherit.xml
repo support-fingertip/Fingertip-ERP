@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Hide HSN Summary from l10n_in -->
+    <template id="hide_hsn_summary"
+              inherit_id="l10n_in.l10n_in_report_invoice_document_inherit">
+        <xpath expr="//div[@name='l10n_in_hsn_summary']" position="replace"/>
+    </template>
+
+    <!-- Move bank details below totals/amount in words -->
+    <template id="move_narration_left"
+              inherit_id="account.report_invoice_document">
+
+        <!-- Remove narration from its original position -->
+        <xpath expr="//div[@name='comment']" position="replace"/>
+
+        <!-- Insert narration below the totals block -->
+        <xpath expr="//div[hasclass('overflow-hidden')]" position="after">
+            <div t-if="not is_html_empty(o.narration)" name="comment" class="mt-3" style="clear:both;">
+                <span t-field="o.narration"/>
+            </div>
+            <table style="width:100%; clear:both; margin-top:10px; border-collapse:collapse;">
+                <tr>
+                    <td style="width:55%; vertical-align:top; padding-right:20px;">
+                        <strong>Declaration</strong><br/>
+                        We declare that this invoice shows the actual price of the goods/<br/>
+                        Services described and that all particulars are true and correct
+                    </td>
+                    <td style="width:45%; vertical-align:top; text-align:center;">
+                        <div>for <strong t-field="o.company_id.name"/></div>
+                        <div style="height:40px;"></div>
+                        <div><strong>Authorised Signatory</strong></div>
+                    </td>
+                </tr>
+            </table>
+        </xpath>
+
+    </template>
+
+</odoo>
