@@ -21,12 +21,12 @@
         <field name="name">Custom Invoice</field>
         <field name="model">account.move</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">custom_invoice_report.invoice_template</field>
-        <field name="report_file">custom_invoice_report.invoice_template</field>
+        <field name="report_name">custom_invoice.invoice_template</field>
+        <field name="report_file">custom_invoice.invoice_template</field>
         <field name="print_report_name">'Invoice - %s' % (object.name)</field>
         <field name="binding_model_id" ref="account.model_account_move"/>
         <field name="binding_type">report</field>
-        <field name="paperformat_id" ref="custom_invoice_report.paperformat_tax"/>
+        <field name="paperformat_id" ref="custom_invoice.paperformat_tax"/>
     </record>
 
    
