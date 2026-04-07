@@ -246,10 +246,31 @@
                                 We declare that this invoice shows the actual price of the goods/
                                 Services described and that all particulars are true and correct.
                             </td>
-                            <td style="text-align:center;">
-                                for <span t-esc="o.company_id.name"/><br/><br/><br/>
-                                <strong>Authorised Signatory</strong>
-                            </td>
+                            <td style="width:55%; vertical-align:top; text-align:center;">
+
+                        <div>
+                            for
+                            <span t-field="o.company_id.name"/>
+                        </div>
+
+                        <!-- Images -->
+                        <div style="height:100px; display:flex; justify-content:center; align-items:center; gap:10px;">
+
+                            <!-- Signature -->
+                            <img src="/custom_invoice/static/src/img/sign.png"
+                                 style="max-height:80px;"/>
+
+                            <!-- Stamp -->
+                            <img src="/custom_invoice/static/src/img/seal.png"
+                                 style="max-height:80px;"/>
+
+                        </div>
+
+                        <div>
+                            <strong>Authorised Signatory</strong>
+                        </div>
+
+                    </td>
                         </tr>
 
                     </table>

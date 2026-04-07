@@ -35,15 +35,35 @@
         <xpath expr="//span[@name='order_note']/.." position="after">
             <table style="width:100%; margin-top:10px; border-collapse:collapse;">
                 <tr>
-                    <td style="width:55%; vertical-align:top; padding-right:20px;">
+                    <td style="width:45%; vertical-align:top; padding-right:20px;">
                         <strong>Declaration</strong><br/>
                         We declare that this invoice shows the actual price of the goods/<br/>
                         Services described and that all particulars are true and correct
                     </td>
-                    <td style="width:45%; vertical-align:top; text-align:center;">
-                        <div>for <strong t-field="doc.company_id.name"/></div>
-                        <div style="height:40px;"></div>
-                        <div><strong>Authorised Signatory</strong></div>
+                    <td style="width:55%; vertical-align:top; text-align:center;">
+
+                        <div>
+                            for
+                            <span t-field="doc.company_id.name"/>
+                        </div>
+
+                        <!-- Images -->
+                        <div style="height:100px; display:flex; justify-content:center; align-items:center; gap:10px;">
+
+                            <!-- Signature -->
+                            <img src="/custom_invoice/static/src/img/sign.png"
+                                 style="max-height:80px;"/>
+
+                            <!-- Stamp -->
+                            <img src="/custom_invoice/static/src/img/seal.png"
+                                 style="max-height:80px;"/>
+
+                        </div>
+
+                        <div>
+                            <strong>Authorised Signatory</strong>
+                        </div>
+
                     </td>
                 </tr>
             </table>

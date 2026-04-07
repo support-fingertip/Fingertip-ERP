@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from datetime import datetime
 
 DEFAULT_BANK_NOTE = """<p><b>Please transfer to below Bank Details</b><br/>
 Bank Name : <b>HDFC Bank Ltd</b><br/>
@@ -22,3 +23,20 @@ class SaleOrder(models.Model):
     def _compute_note(self):
         for order in self:
             order.note = DEFAULT_BANK_NOTE
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('name', 'New') == 'New':
+                now = datetime.now()
+
+                year = now.year % 100
+                next_year = (now.year + 1) % 100
+
+                prefix = f"FTPPL/PI/{year:02d}-{next_year:02d}/"
+
+                seq = self.env['ir.sequence'].next_by_code('sale.order') or '001'
+
+                vals['name'] = prefix + seq
+
+        return super().create(vals_list)
