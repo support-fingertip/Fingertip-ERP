@@ -78,7 +78,7 @@
                 <field name="project_status"/>
             </xpath>
             <xpath expr="field[@name='amount_total']" position="after">
-                <field name="balance_amount"/>
+                <field name="balance_amount" sum="Balance Amount" widget="monetary"/>
             </xpath>
         </field>
     </record>
@@ -104,7 +104,7 @@
                 <field name="project_status"/>
             </xpath>
             <xpath expr="field[@name='amount_total']" position="after">
-                <field name="balance_amount"/>
+                <field name="balance_amount" sum="Balance Amount" widget="monetary"/>
             </xpath>
         </field>
     </record>
