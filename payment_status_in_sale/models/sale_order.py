@@ -20,6 +20,7 @@
 #
 ###############################################################################
 from odoo import api, fields, models, _
+import json
 
 
 class SaleOrder(models.Model):
@@ -219,4 +220,19 @@ class SalePayment(models.Model):
         store=True
     )
     amount = fields.Monetary(string="Amount",related='payment_id.amount')
+    payment_domain = fields.Char(
+        compute="_compute_payment_domain",
+        readonly=True,
+        store=False,
+    )
+
+    @api.depends('sale_id')
+    def _compute_payment_domain(self):
+        for rec in self:
+            if rec.sale_id and rec.sale_id.partner_id:
+                rec.payment_domain = json.dumps([
+                    ('partner_id', '=', rec.sale_id.partner_id.id)
+                ])
+            else:
+                rec.payment_domain = json.dumps([])
 

@@ -39,7 +39,8 @@
             <page string="Payments">
                 <field name="payment_ids">
                     <list editable="top">
-                        <field name="payment_id"/>
+                        <field name="payment_domain" column_invisible="1"/>
+                        <field name="payment_id" domain="payment_domain"/>
                         <field name="date"/>
                         <field name="company_id" column_invisible="1"/>
                         <field name="currency_id" column_invisible="1"/>
